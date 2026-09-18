@@ -7,4 +7,8 @@ app.use(express.json());
 
 app.use("/produtos", produtoRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Servidor rodando com sucesso!');
+});
+
 module.exports = app;
