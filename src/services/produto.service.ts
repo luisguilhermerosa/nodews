@@ -1,82 +1,57 @@
-const Produto = require("../model.js/produto.model.js");
+const repository = require("../repositories/produto.repository");
 
-const produtos = [
-    new Produto(1, "Notebook", 3500),
-    new Produto(2, "Mouse", 120)
-
-];
-
-function listar(filtros = {}) {
-    let resultado = produtos;
-
-    if(filtros.nome) {
-        resultado = resultado.filter(
-            p => p.nome.toLowerCase().includes(filtros.nome.toLowerCase())
-        );
-    }
-
-    return resultado;
+async function listar(filtros: any = {}) {
+    return await repository.listar(filtros);
 }
 
-function buscarPorId(id) {
-    return produtos.find((p) => p.id === Number(id));
+async function buscarPorId(id: string | number) {
+    return await repository.buscarPorId(id);
 }
 
-function criar(dados) {
-    if(!dados.nome || dados.preco == null) {
-        throw new Error("Nome e preços são obrigatórios.");
-    }
-
-    const novoProduto = {
-        id: produtos.length ? produtos[produtos.length - 1 ].id +  1 : 1,
-        nome: dados.nome,
-        preco: dados.preco
-    };
-
-    produtos.push(novoProduto);
-    return novoProduto;
-}
-
-function atualizarTotal(id, dados) {
-    const index = produtos.findIndex((p) => p.id === Number(id));
-    if (index === -1) return null;
-
+async function criar(dados: {
+    nome: string;
+    preco: number;
+}) {
     if (!dados.nome || dados.preco == null) {
-        throw new Error("PUT exige o envio completo de 'nome' e 'preco'.");
+        throw new Error("Nome e preço são obrigatórios.");
     }
 
-    produtos[index] = {
-        id: Number(id),
-        nome: dados.nome,
-        preco: dados.preco
-    };
-
-    return produtos[index];
+    return await repository.criar(dados);
 }
 
-function atualizarParcial(id, dados) {
-    const produto = produtos.find((p) => p.id === Number(id));
-    if (!produto) return null;
+async function atualizar(
+    id: string | number,
+    dados: {
+        nome: string;
+        preco: number;
+    }
+) {
+    if (!dados.nome || dados.preco == null) {
+        throw new Error("Nome e preço são obrigatórios.");
+    }
 
-    if (dados.nome !== undefined) produto.nome = dados.nome;
-    if (dados.preco !== undefined) produto.preco = dados.preco;
-
-    return produto;
+    return await repository.atualizar(id, dados);
 }
 
-function deletar(id) {
-    const index = produtos.findIndex((p) => p.id === Number(id));
-    if (index === -1) return false;
+async function atualizarParcial(
+    id: string | number,
+    dados: {
+        nome?: string;
+        preco?: number;
+    }
+) {
+    return await repository.atualizarParcial(id, dados);
+}
 
-    produtos.splice(index, 1);
-    return true;
+async function deletar(id: string | number) {
+    return await repository.deletar(id);
 }
 
 module.exports = {
-    listar, 
+    listar,
     buscarPorId,
     criar,
+    atualizar,
     atualizarParcial,
-    atualizarTotal,
     deletar
-};  
+};
